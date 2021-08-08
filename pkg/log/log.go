@@ -27,17 +27,17 @@ import (
 	"github.com/go-logr/logr"
 )
 
-func NewLogger(root string, errorFile string) *CustomLogger {
-	return &CustomLogger{glogr.New(), root, errorFile}
+func NewLogger(root string, errorFile string) *Logger {
+	return &Logger{glogr.New(), root, errorFile}
 }
 
-type CustomLogger struct {
+type Logger struct {
 	logr.Logger
 	Root      string
 	ErrorFile string
 }
 
-func (l CustomLogger) Error(err error, msg string, kvList ...interface{}) {
+func (l Logger) Error(err error, msg string, kvList ...interface{}) {
 	l.Logger.Error(err, msg, kvList...)
 	if l.ErrorFile == "" {
 		return
@@ -72,7 +72,7 @@ func (l CustomLogger) Error(err error, msg string, kvList ...interface{}) {
 }
 
 // exportError exports the error to the error file if --export-error is enabled.
-func (l *CustomLogger) ExportError(content string) {
+func (l *Logger) ExportError(content string) {
 	if l.ErrorFile == "" {
 		return
 	}
@@ -80,7 +80,7 @@ func (l *CustomLogger) ExportError(content string) {
 }
 
 // writeContent writes the error content to the error file.
-func (l *CustomLogger) writeContent(content []byte) {
+func (l *Logger) writeContent(content []byte) {
 	if _, err := os.Stat(l.Root); os.IsNotExist(err) {
 		fileMode := os.FileMode(0755)
 		if err := os.Mkdir(l.Root, fileMode); err != nil {
@@ -115,7 +115,7 @@ func (l *CustomLogger) writeContent(content []byte) {
 }
 
 // deleteErrorFile deletes the error file.
-func (l *CustomLogger) DeleteErrorFile() {
+func (l *Logger) DeleteErrorFile() {
 	if l.ErrorFile == "" {
 		return
 	}

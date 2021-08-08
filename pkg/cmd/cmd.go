@@ -26,12 +26,12 @@ import (
 	"k8s.io/git-sync/pkg/log"
 )
 
-func NewCommandRunner(log *log.CustomLogger) *CommandRunner {
+func NewCommandRunner(log *log.Logger) *CommandRunner {
 	return &CommandRunner{log: log}
 }
 
 type CommandRunner struct {
-	log *log.CustomLogger
+	log *log.Logger
 }
 
 func (c *CommandRunner) Run(ctx context.Context, cwd, command string, args ...string) (string, error) {

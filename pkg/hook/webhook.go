@@ -37,7 +37,7 @@ type Webhook struct {
 	// Timeout for the http/s request
 	Timeout time.Duration
 	// Logger
-	Logger *log.CustomLogger
+	Logger *log.Logger
 }
 
 func (w *Webhook) Name() string {

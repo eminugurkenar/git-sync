@@ -133,7 +133,7 @@ var flHTTPprof = flag.Bool("http-pprof", envBool("GIT_SYNC_HTTP_PPROF", false),
 	"enable the pprof debug endpoints on git-sync's HTTP endpoint")
 
 var cmdRunner *cmd.CommandRunner
-var logger *log.CustomLogger
+var logger *log.Logger
 
 // Total pull/error, summary on pull duration
 var (
