@@ -14,13 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package hook
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 	"time"
+
+	"k8s.io/git-sync/pkg/log"
 )
 
 // WebHook structure
@@ -34,6 +36,8 @@ type Webhook struct {
 	Success int
 	// Timeout for the http/s request
 	Timeout time.Duration
+	// Logger
+	Logger *log.CustomLogger
 }
 
 func (w *Webhook) Name() string {
@@ -51,7 +55,7 @@ func (w *Webhook) Do(hash string) error {
 	defer cancel()
 	req = req.WithContext(ctx)
 
-	log.V(0).Info("sending webhook", "hash", hash, "url", w.URL, "method", w.Method, "timeout", w.Timeout)
+	w.Logger.V(0).Info("sending webhook", "hash", hash, "url", w.URL, "method", w.Method, "timeout", w.Timeout)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err

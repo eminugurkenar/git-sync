@@ -14,19 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package hook
 
 import (
 	"testing"
 	"time"
+
+	"k8s.io/git-sync/pkg/cmd"
+	"k8s.io/git-sync/pkg/log"
 )
 
 func TestNotZeroReturnCmdhookDo(t *testing.T) {
 	t.Run("test not zero return code", func(t *testing.T) {
 		ch := Cmdhook{
-			Command: "false",
-			GitRoot: "/tmp",
-			Timeout: time.Second,
+			CommandRunner: cmd.NewCommandRunner(log.NewLogger("", "")),
+			Command:       "false",
+			GitRoot:       "/tmp",
+			Timeout:       time.Second,
 		}
 		err := ch.Do("")
 		if err == nil {
@@ -38,9 +42,10 @@ func TestNotZeroReturnCmdhookDo(t *testing.T) {
 func TestZeroReturnCmdhookDo(t *testing.T) {
 	t.Run("test zero return code", func(t *testing.T) {
 		ch := Cmdhook{
-			Command: "true",
-			GitRoot: "/tmp",
-			Timeout: time.Second,
+			CommandRunner: cmd.NewCommandRunner(log.NewLogger("", "")),
+			Command:       "true",
+			GitRoot:       "/tmp",
+			Timeout:       time.Second,
 		}
 		err := ch.Do("")
 		if err != nil {
@@ -52,10 +57,11 @@ func TestZeroReturnCmdhookDo(t *testing.T) {
 func TestTimeoutCmdhookDo(t *testing.T) {
 	t.Run("test timeout", func(t *testing.T) {
 		ch := Cmdhook{
-			Command: "/bin/sh",
-			Args:    []string{"-c", "sleep 2"},
-			GitRoot: "/tmp",
-			Timeout: time.Second,
+			CommandRunner: cmd.NewCommandRunner(log.NewLogger("", "")),
+			Command:       "/bin/sh",
+			Args:          []string{"-c", "sleep 2"},
+			GitRoot:       "/tmp",
+			Timeout:       time.Second,
 		}
 		err := ch.Do("")
 		if err == nil {

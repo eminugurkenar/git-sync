@@ -14,16 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package hook
 
 import (
 	"context"
 	"path/filepath"
 	"time"
+
+	"k8s.io/git-sync/pkg/cmd"
 )
 
 // Cmdhook structure
 type Cmdhook struct {
+	// Runner
+	CommandRunner *cmd.CommandRunner
 	// Command to run
 	Command string
 	// Command args
@@ -44,6 +48,6 @@ func (c *Cmdhook) Do(hash string) error {
 
 	worktreePath := filepath.Join(c.GitRoot, hash)
 
-	_, err := runCommand(ctx, worktreePath, c.Command, c.Args...)
+	_, err := c.CommandRunner.Run(ctx, worktreePath, c.Command, c.Args...)
 	return err
 }

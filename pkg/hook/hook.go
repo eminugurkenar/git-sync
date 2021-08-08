@@ -14,11 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package hook
 
 import (
 	"sync"
 	"time"
+
+	"github.com/go-logr/logr"
+	"github.com/prometheus/client_golang/prometheus"
+)
+
+var (
+	hookRunCount = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "git_sync_hook_run_count_total",
+		Help: "How many hook runs completed, partitioned by name and state (success, error)",
+	}, []string{"name", "status"})
 )
 
 type Hook interface {
@@ -75,6 +85,8 @@ type HookRunner struct {
 	Backoff time.Duration
 	// Holds the data as it crosses from producer to consumer.
 	Data *hookData
+	// Logger
+	log logr.Logger
 }
 
 func (r *HookRunner) Send(hash string) {
@@ -82,8 +94,9 @@ func (r *HookRunner) Send(hash string) {
 }
 
 // Wait for trigger events from the channel, and run hook when triggered
-func (r *HookRunner) run() {
+func (r *HookRunner) Run() {
 	var lastHash string
+	prometheus.MustRegister(hookRunCount)
 
 	// Wait for trigger from hookData.Send
 	for range r.Data.events() {
@@ -98,11 +111,11 @@ func (r *HookRunner) run() {
 			}
 
 			if err := r.Hook.Do(hash); err != nil {
-				log.Error(err, "hook failed")
-				updateHookRunCountMetric(r.Hook.Name(), metricKeyError)
+				r.log.Error(err, "hook failed")
+				updateHookRunCountMetric(r.Hook.Name(), "error")
 				time.Sleep(r.Backoff)
 			} else {
-				updateHookRunCountMetric(r.Hook.Name(), metricKeySuccess)
+				updateHookRunCountMetric(r.Hook.Name(), "success")
 				lastHash = hash
 				break
 			}

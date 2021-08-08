@@ -14,11 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package hook
 
 import (
 	"testing"
 	"time"
+
+	"k8s.io/git-sync/pkg/log"
 )
 
 func TestWebhookDo(t *testing.T) {
@@ -28,6 +30,7 @@ func TestWebhookDo(t *testing.T) {
 			Method:  "POST",
 			Success: 200,
 			Timeout: time.Second,
+			Logger:  log.NewLogger("", ""),
 		}
 		err := wh.Do("hash")
 		if err == nil {
