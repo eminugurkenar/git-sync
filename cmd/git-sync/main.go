@@ -151,6 +151,11 @@ var (
 		Help: "How many git syncs completed, partitioned by state (success, error, noop)",
 	}, []string{"status"})
 
+	syncHookCommandError = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "git_sync_hook_command_last_error",
+		Help: "Whether the last sync hook command resulted in an error (1 for error, 0 for success).",
+	})
+
 	askpassCount = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "git_sync_askpass_calls",
 		Help: "How many git askpass calls completed, partitioned by state (success, error)",
@@ -175,6 +180,7 @@ const (
 func init() {
 	prometheus.MustRegister(syncDuration)
 	prometheus.MustRegister(syncCount)
+	prometheus.MustRegister(syncHookCommandError)
 	prometheus.MustRegister(askpassCount)
 }
 
@@ -552,6 +558,10 @@ func main() {
 func updateSyncMetrics(key string, start time.Time) {
 	syncDuration.WithLabelValues(key).Observe(time.Since(start).Seconds())
 	syncCount.WithLabelValues(key).Inc()
+}
+
+func updateSyncHookCommandStatus(status float64) {
+	syncHookCommandError.Set(status)
 }
 
 func waitTime(seconds float64) time.Duration {
